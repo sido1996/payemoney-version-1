@@ -37,12 +37,9 @@ class PermissionsController extends PermissionsChecker
         $phpSupportInfo = $this->requirements->checkPHPversion(config('installer.core.minimumPhpVersion'));
         $requirements   = $this->requirements->check(config('installer.requirements'));
         $permissions    = $this->permissions->checkPermission(config('installer.permissions'));
-        if (!isset($requirements['errors']) && $phpSupportInfo['supported'])
-        {
+        if (!isset($requirements['errors']) && $phpSupportInfo['supported']) {
             return view('vendor.installer.permissions', compact('permissions'));
-        }
-        else
-        {
+        } else {
             return redirect('install/requirements');
         }
     }
@@ -57,12 +54,9 @@ class PermissionsController extends PermissionsChecker
         return redirect('install/database');
 
 
-        if ($request->method() != 'POST')
-        {
+        if ($request->method() != 'POST') {
             return view('vendor.installer.purchasecode');
-        }
-        else
-        {
+        } else {
             $rules = [
                 'envatopurchasecode' => 'required',
             ];
@@ -73,27 +67,20 @@ class PermissionsController extends PermissionsChecker
             $validator = Validator::make($request->all(), $rules);
             $validator->setAttributeNames($fieldNames);
 
-            if ($validator->fails())
-            {
+            if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();
-            }
-            else
-            {
+            } else {
                 $domainName     = request()->getHost();
                 $domainIp       = request()->ip();
                 $purchaseStatus = $this->getPurchaseStatus($domainName, $domainIp, $request->envatopurchasecode);
 
-                if ($purchaseStatus == 1)
-                {
+                if ($purchaseStatus == 1) {
                     return redirect('install/database');
-                }
-                else
-                {
+                } else {
                     return back()->withErrors(['envatopurchasecode' => 'Invalid purchase code'])->withInput();
                 }
             }
         }
-
     }
 
     //Send data to verify envato purchase code
@@ -124,14 +111,10 @@ class PermissionsController extends PermissionsChecker
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $output = curl_exec($ch);
 
-        if (!empty(json_decode($output)->status) && json_decode($output)->status == 1 && json_decode($output)->item_name == 'PayMoney - Secure Online Payment Gateway')
-        {
+        if (!empty(json_decode($output)->status) && json_decode($output)->status == 1 && json_decode($output)->item_name == 'PayMoney - Secure Online Payment Gateway') {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
-
 }
